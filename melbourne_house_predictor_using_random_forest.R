@@ -14,34 +14,25 @@ get.package('modelr')
 get.package('glue')
 
 # Read data into workspace
-melb.data <- read.csv('data/melb_data.csv')
+train.data <- read.csv('data/melbourne-house-prices-train-data.csv')
+test.data <- read.csv('data/melbourne-house-prices-test-data.csv')
 
 # Neglect na records
-melb.data <- na.omit(melb.data)
+na.omit(train.data)
 
 # Summarize the data
-summary(melb.data)
+summary(train.data)
 
-# Partition data into train and test set
-partition.data <- resample_partition(melb.data, c(test = 0.3, train = 0.7))
+target <- "SalePrice"
+features <- c("LotArea", "OverallQual", "TotRmsAbvGrd", "YearBuilt")
 
-print(lapply(partition.data, dim))
+features <- paste(features, collapse = "+")
+formula <- as.formula(paste(target, "~", features, sep = ""))
 
-get.mae <- function(max.depth, target, features, train.data, test.data) {
-  features <- paste(features, collapse = "+")
-  formula <- as.formula(paste(target, "~", features, sep = ""))
-  
-  model <- randomForest(formula, data = train.data, control = randomForest.control(maxdepth = max.depth))
-  mean.average.error <- mae(model = model, test.data)
-  
-  return(mean.average.error)
-}
+max.depth = 2
 
-target <- "Price"
-features <- c("Rooms", "Bathroom", "Landsize", "BuildingArea", "YearBuilt", "Lattitude",
-              "Longtitude")
+model <- randomForest(formula, data = train.data, control = randomForest.control(maxdepth = max.depth))
+predictions <- predict(model, newdata = test.data)
 
-for (max.depth in 1:3) {
-  mean.average.error <- get.mae(max.depth, target, features, partition.data$train, partition.data$test)
-  print(glue("Max Depth: ", max.depth, "\t MAE: ", mean.average.error))
-}
+submission.file <- data_frame('Id' = test.data$Id, 'SalePrice' = predictions)
+write_csv(submission.file, 'data/melbourne-house-prices-predictions.csv')
