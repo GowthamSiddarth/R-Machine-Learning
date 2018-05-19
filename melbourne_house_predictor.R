@@ -26,3 +26,12 @@ plot(fit, uniform = TRUE)
 
 # add text to regression tree
 text(fit, cex=0.6)
+
+print("Predicting Prices for following houses")
+print(head(melb_data))
+
+predictions <- predict(fit, head(melb_data))
+print(predictions)
+
+print("Actaul Price")
+print(head(melb_data$Price))
