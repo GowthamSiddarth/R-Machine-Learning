@@ -10,6 +10,7 @@ source('get_package.R')
 get_package('tidyverse')
 get_package('rpart')
 get_package('randomForest')
+get_package('modelr')
 
 # Read data into workspace
 melb_data <- read.csv('data/melb_data.csv')
@@ -35,3 +36,6 @@ print(predictions)
 
 print("Actaul Price")
 print(head(melb_data$Price))
+
+mean_average_error = mae(model = fit, data = melb_data)
+print(paste("MEAN AVERAGE ERROR: ", mean_average_error))
